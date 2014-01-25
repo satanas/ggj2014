@@ -9,7 +9,7 @@ class RigidBody {
         RigidBody(b2World& _world, int x, int y, int _width, int _height, sf::Texture& _texture);
         ~RigidBody();
         int x, y, width, height;
-        float mWidth, mHeight;
+        float m_width, m_height;
 
         void draw(sf::RenderWindow& window);
 
@@ -22,13 +22,18 @@ class RigidBody {
 
 class Player {
     public:
+        static const int DIRECTION_NONE = 0;
+        static const int DIRECTION_LEFT = -1;
+        static const int DIRECTION_RIGHT = 1;
+
         Player(b2World& _world, int x, int y, sf::Texture& _texture);
         ~Player();
 
         void draw(sf::RenderWindow& window);
+        void move(int direction);
 
     private:
-        int playerWidth, playerHeight;
+        int player_width, player_height;
         b2World& world;
         b2Body* body;
         sf::Sprite sprite;

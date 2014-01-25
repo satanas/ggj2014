@@ -36,7 +36,7 @@ int Game::start() {
     sf::Texture player_texture;
     player_texture.loadFromFile("player.png");
 
-    RigidBody body = RigidBody(world, 0, 568, 128, 32, ground);
+    RigidBody body = RigidBody(world, 0, 568, 256, 32, ground);
     RigidBody body2 = RigidBody(world, 128, 128, 128, 32, ground);
     RigidBody body3 = RigidBody(world, 384, 384, 64, 64, ground);
     RigidBody body4 = RigidBody(world, 0, 0, 568, 32, ground);
@@ -45,8 +45,22 @@ int Game::start() {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 window.close();
+            }
+            if (event.type == sf::Event::KeyPressed) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+                    player.move(Player::DIRECTION_LEFT);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                    player.move(Player::DIRECTION_RIGHT);
+                }
+            }
+            if (event.type == sf::Event::KeyReleased) {
+                if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                    player.move(Player::DIRECTION_NONE);
+                }
+            }
         }
 
         sprintf(fps_buff, "FPS: %3.2f", framesPerSecond(clock));
