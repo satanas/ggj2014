@@ -46,6 +46,8 @@ RigidBody::~RigidBody() {}
 Player::Player(b2World& _world, int x, int y, sf::Texture& _texture) : world(_world), texture(_texture) {
     player_width = 32;
     player_height = 32;
+    remaining_jump_step = 0;
+    jumping = false;
     float m_x = (x + ((float)player_width / 2)) / SCALE;
     float m_y = (y + ((float)player_height / 2)) / SCALE;
 
@@ -53,12 +55,13 @@ Player::Player(b2World& _world, int x, int y, sf::Texture& _texture) : world(_wo
     bodyDef.position = b2Vec2(m_x, m_y);
     bodyDef.type = b2_dynamicBody;
     body = world.CreateBody(&bodyDef);
+    body->SetFixedRotation(true);
 
     b2PolygonShape shape;
     shape.SetAsBox((player_width / 2) / SCALE, (player_height / 2) / SCALE);
     b2FixtureDef fixtureDef;
     fixtureDef.density = 0.1f;
-    fixtureDef.friction= 0.7f;
+    fixtureDef.friction= 0.0f;
     fixtureDef.shape = &shape;
     body->CreateFixture(&fixtureDef);
 
@@ -77,12 +80,40 @@ void Player::move(int direction) {
     b2Vec2 vel = body->GetLinearVelocity();
     if (direction == Player::DIRECTION_LEFT) {
         vel.x = -5;
+        //body->ApplyForce(b2Vec2(0, 5), body->GetWorldCenter(), true);
     } else if (direction == Player::DIRECTION_RIGHT) {
         vel.x = 5;
+        //body->ApplyForce(b2Vec2(0, -5), body->GetWorldCenter(), true);
     } else if (direction == Player::DIRECTION_NONE) {
         vel.x = 0;
+        //body->SetLinearVelocity(vel);
     }
     body->SetLinearVelocity(vel);
+}
+
+void Player::jump() {
+    if (!jumping) {
+        remaining_jump_step = 6;
+        jumping = true;
+    }
+}
+
+void Player::update() {
+    b2Vec2 vel = body->GetLinearVelocity();
+
+    if (remaining_jump_step > 0) {
+        body->ApplyForce(b2Vec2(0, -10), body->GetWorldCenter(), true);
+        remaining_jump_step--;
+    }
+
+    if (vel.y != 0.0) {
+        jumping = true;
+    } else {
+        jumping = false;
+    }
+
+    printf("vel_y: %f, jumping %i\n", vel.y, jumping);
+    fflush(stdout);
 }
 
 Player::~Player() {}

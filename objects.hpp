@@ -31,9 +31,12 @@ class Player {
 
         void draw(sf::RenderWindow& window);
         void move(int direction);
+        void jump();
+        void update();
 
     private:
-        int player_width, player_height;
+        int player_width, player_height, remaining_jump_step;
+        bool jumping;
         b2World& world;
         b2Body* body;
         sf::Sprite sprite;

@@ -38,8 +38,9 @@ int Game::start() {
 
     RigidBody body = RigidBody(world, 0, 568, 256, 32, ground);
     RigidBody body2 = RigidBody(world, 128, 128, 128, 32, ground);
-    RigidBody body3 = RigidBody(world, 384, 384, 64, 64, ground);
+    RigidBody body3 = RigidBody(world, 416, 416, 64, 32, ground);
     RigidBody body4 = RigidBody(world, 0, 0, 568, 32, ground);
+    RigidBody body5 = RigidBody(world, 288, 480, 64, 32, ground);
     Player player = Player(world, 32, 256, player_texture);
 
     while (window.isOpen()) {
@@ -54,6 +55,9 @@ int Game::start() {
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
                     player.move(Player::DIRECTION_RIGHT);
+                }
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                    player.jump();
                 }
             }
             if (event.type == sf::Event::KeyReleased) {
@@ -78,6 +82,9 @@ int Game::start() {
         body2.draw(window);
         body3.draw(window);
         body4.draw(window);
+        body5.draw(window);
+
+        player.update();
         player.draw(window);
 
         window.draw(fps_text);
