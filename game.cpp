@@ -1,21 +1,23 @@
+#include <vector>
 #include "game.hpp"
 #include "objects.hpp"
 
 #define MAX_FRAME_SAMPLES 30
+#define RIGID_BODY 0x01
 
-static float SCALE = 32.0f;
-static const int TILE_SIZE = 32;
+extern float SCALE;
 
-Game::Game(sf::RenderWindow& _window) : window(_window) {
+Game::Game(sf::RenderWindow& _window, b2World& _world) : window(_window), world(_world) {
     frames_count = 0;
     fps = 0.0f;
+    width = (int)window.getSize().x;
+    height = (int)window.getSize().y;
 }
 
 int Game::start() {
+    int current_ground_texture = 0;
     char fps_buff[15];
 
-    b2Vec2 gravity(0.0f, 10.0f);
-    b2World world(gravity);
     sf::Clock clock;
 
     sf::Font font;
@@ -27,6 +29,11 @@ int Game::start() {
     fps_text.setFont(font);
     fps_text.setCharacterSize(18);
     fps_text.setColor(sf::Color::White);
+
+    //std::vector<sf::RenderTexture> groundTexture;
+
+    RigidBody body = RigidBody(world, 0, 568, 128, 32);
+    RigidBody body2 = RigidBody(world, 128, 128, 128, 32);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -45,6 +52,12 @@ int Game::start() {
         world.Step(1.0f/60.f, 8, 3);
 
         window.clear(sf::Color::Black);
+
+        sf::Sprite GroundSprite = body.getSprite();
+        sf::Sprite GroundSprite2 = body2.getSprite();
+        window.draw(GroundSprite);
+        window.draw(GroundSprite2);
+
         window.draw(fps_text);
         window.display();
     }
@@ -61,7 +74,7 @@ float Game::framesPerSecond(sf::Clock& clock) {
     return fps;
 }
 
-void Game::createGround(int x, int y, int tiles_width, int tiles_height) {
+void Game::createRigidGround(int x, int y, int tiles_width, int tiles_height) {
 }
 
 Game::~Game() {}

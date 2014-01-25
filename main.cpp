@@ -1,5 +1,8 @@
 #include "game.hpp"
 
+float SCALE = 32.0f;
+static const int TILE_SIZE = 32;
+
 int main(int, char const**) {
     int width = 800;
     int height = 600;
@@ -12,7 +15,10 @@ int main(int, char const**) {
     sf::RenderWindow window(sf::VideoMode(width, height), "GGJ 2014", sf::Style::Default, settings);
     window.setFramerateLimit(60);
 
-    Game game(window);
+    b2Vec2 gravity(0.0f, 10.0f);
+    b2World world(gravity);
+
+    Game game(window, world);
     game.start();
 
     return 0;

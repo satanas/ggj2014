@@ -6,16 +6,17 @@
 
 class Game {
     public:
-        Game(sf::RenderWindow& _window);
+        Game(sf::RenderWindow& _window, b2World& _world);
         ~Game();
 
         int start();
     private:
-        int frames_count;
+        int frames_count, width, height;
         float fps;
         sf::RenderWindow& window;
+        b2World& world;
 
         float framesPerSecond(sf::Clock& clock);
-        void createGround(int x, int y, int width, int height);
+        void createRigidGround(int x, int y, int width, int height);
 };
 #endif
