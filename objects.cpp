@@ -11,7 +11,8 @@ RigidBody::RigidBody(b2World& _world, int x, int y, int _width, int _height, sf:
     mHeight = ((float)height/2)/SCALE;
 
     b2BodyDef bodyDef;
-    bodyDef.position = b2Vec2((float)x/SCALE, (float)y/SCALE);
+    //bodyDef.position = b2Vec2((float)x/SCALE, (float)y/SCALE);
+    bodyDef.position = b2Vec2(m_x, m_y);
     bodyDef.type = b2_staticBody;
     body = world.CreateBody(&bodyDef);
 
@@ -21,8 +22,6 @@ RigidBody::RigidBody(b2World& _world, int x, int y, int _width, int _height, sf:
     fixtureDef.density = 0.0f;
     fixtureDef.shape = &shape;
     body->CreateFixture(&fixtureDef);
-
-    //groundTexture->create(width, height);
 
     int maxX = width / SCALE;
     int maxY = height / SCALE;
@@ -36,28 +35,47 @@ RigidBody::RigidBody(b2World& _world, int x, int y, int _width, int _height, sf:
     }
 }
 
-//sf::Sprite& RigidBody::getSprite() {
 void RigidBody::draw(sf::RenderWindow& window) {
-    //groundTexture->clear(sf::Color::Red);
-
-    //int max = sprites.size();
-    //for (int i=0; i<max; i++) {
-    //    groundTexture->draw(*sprites[i]);
-    //}
     std::vector<sf::Sprite>::iterator iterator;
     for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator) {
         //printf("%s\n", typeid(*iterator).name());
-        //groundTexture->draw(*iterator);
         window.draw(*iterator);
     }
-    //groundTexture->display();
-
-    //sprite.setTexture(groundTexture->getTexture());
-    //sprite.setTexture(texture);
-    //sprite.setOrigin(0, 0);
-    //sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
-    //window.draw(sprite);
-    //return sprite;
 }
 
 RigidBody::~RigidBody() {}
+
+Player::Player(b2World& _world, int x, int y, sf::Texture& _texture) : world(_world), texture(_texture) {
+    playerWidth = 32;
+    playerHeight = 32;
+    float m_x = (x + ((float)playerWidth / 2)) / SCALE;
+    float m_y = (y + ((float)playerHeight / 2)) / SCALE;
+
+    b2BodyDef bodyDef;
+    //bodyDef.position = b2Vec2((float)x / SCALE, (float)y / SCALE);
+    bodyDef.position = b2Vec2(m_x, m_y);
+    bodyDef.type = b2_dynamicBody;
+    body = world.CreateBody(&bodyDef);
+
+    b2PolygonShape shape;
+    shape.SetAsBox((playerWidth / 2) / SCALE, (playerHeight / 2) / SCALE);
+    b2FixtureDef fixtureDef;
+    fixtureDef.density = 0.1f;
+    fixtureDef.friction= 0.7f;
+    fixtureDef.shape = &shape;
+    body->CreateFixture(&fixtureDef);
+
+    sprite.setTexture(texture);
+    sprite.setOrigin(playerWidth / 2, playerHeight / 2);
+}
+
+void Player::draw(sf::RenderWindow& window) {
+    printf("x: %f, y: %f\n", SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
+    sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
+    sprite.setRotation(body->GetAngle() * 180/b2_pi);
+    //printf("%s\n", typeid(sprite).name());
+    window.draw(sprite);
+    fflush(stdout);
+}
+
+Player::~Player() {}

@@ -30,15 +30,17 @@ int Game::start() {
     fps_text.setCharacterSize(18);
     fps_text.setColor(sf::Color::White);
 
-    //std::vector<sf::RenderTexture> groundTexture;
-
     sf::Texture ground;
     ground.loadFromFile("box.png");
+
+    sf::Texture player_texture;
+    player_texture.loadFromFile("player.png");
 
     RigidBody body = RigidBody(world, 0, 568, 128, 32, ground);
     RigidBody body2 = RigidBody(world, 128, 128, 128, 32, ground);
     RigidBody body3 = RigidBody(world, 384, 384, 64, 64, ground);
-    RigidBody body4= RigidBody(world, 0, 0, 568, 32, ground);
+    RigidBody body4 = RigidBody(world, 0, 0, 568, 32, ground);
+    Player player = Player(world, 32, 256, player_texture);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -62,6 +64,7 @@ int Game::start() {
         body2.draw(window);
         body3.draw(window);
         body4.draw(window);
+        player.draw(window);
 
         window.draw(fps_text);
         window.display();

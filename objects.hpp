@@ -11,16 +11,28 @@ class RigidBody {
         int x, y, width, height;
         float mWidth, mHeight;
 
-        //sf::Sprite& getSprite();
         void draw(sf::RenderWindow& window);
 
     private:
         b2World& world;
         b2Body* body;
+        sf::Texture& texture;
+        std::vector<sf::Sprite> sprites;
+};
+
+class Player {
+    public:
+        Player(b2World& _world, int x, int y, sf::Texture& _texture);
+        ~Player();
+
+        void draw(sf::RenderWindow& window);
+
+    private:
+        int playerWidth, playerHeight;
+        b2World& world;
+        b2Body* body;
         sf::Sprite sprite;
         sf::Texture& texture;
-        sf::RenderTexture* groundTexture;
-        std::vector<sf::Sprite> sprites;
 };
 
 #endif
