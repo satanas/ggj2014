@@ -11,7 +11,7 @@ class RigidBody {
         int x, y, width, height;
         float mWidth, mHeight;
 
-        //sf::Sprite getSprite();
+        //sf::Sprite& getSprite();
         void draw(sf::RenderWindow& window);
 
     private:
@@ -19,6 +19,8 @@ class RigidBody {
         b2Body* body;
         sf::Sprite sprite;
         sf::Texture& texture;
+        sf::RenderTexture* groundTexture;
+        std::vector<sf::Sprite> sprites;
 };
 
 #endif

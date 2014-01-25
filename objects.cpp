@@ -21,29 +21,43 @@ RigidBody::RigidBody(b2World& _world, int x, int y, int _width, int _height, sf:
     fixtureDef.density = 0.0f;
     fixtureDef.shape = &shape;
     body->CreateFixture(&fixtureDef);
-}
 
-void RigidBody::draw(sf::RenderWindow& window) {
-    sf::RenderTexture groundTexture;
-    groundTexture.create(width, height);
-    groundTexture.clear(sf::Color::Red);
+    //groundTexture->create(width, height);
 
     int maxX = width / SCALE;
     int maxY = height / SCALE;
     for (int i=0; i<maxX; i++) {
         for (int j=0; j<maxY; j++) {
             sf::Sprite sp(texture);
-            sp.setPosition(i * SCALE, j * SCALE);
-            groundTexture.draw(sp);
+            printf("otro: %s\n", typeid(sp).name());
+            sp.setPosition((i * SCALE) + x, (j * SCALE) + y);
+            sprites.push_back(sp);
         }
     }
-    groundTexture.display();
+}
 
-    sprite.setTexture(groundTexture.getTexture());
-    sprite.setOrigin(0, 0);
-    sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
-    //sprite.setRotation(180/b2_pi * body->GetAngle());
-    window.draw(sprite);
+//sf::Sprite& RigidBody::getSprite() {
+void RigidBody::draw(sf::RenderWindow& window) {
+    //groundTexture->clear(sf::Color::Red);
+
+    //int max = sprites.size();
+    //for (int i=0; i<max; i++) {
+    //    groundTexture->draw(*sprites[i]);
+    //}
+    std::vector<sf::Sprite>::iterator iterator;
+    for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator) {
+        //printf("%s\n", typeid(*iterator).name());
+        //groundTexture->draw(*iterator);
+        window.draw(*iterator);
+    }
+    //groundTexture->display();
+
+    //sprite.setTexture(groundTexture->getTexture());
+    //sprite.setTexture(texture);
+    //sprite.setOrigin(0, 0);
+    //sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
+    //window.draw(sprite);
+    //return sprite;
 }
 
 RigidBody::~RigidBody() {}

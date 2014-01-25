@@ -38,6 +38,7 @@ int Game::start() {
     RigidBody body = RigidBody(world, 0, 568, 128, 32, ground);
     RigidBody body2 = RigidBody(world, 128, 128, 128, 32, ground);
     RigidBody body3 = RigidBody(world, 384, 384, 64, 64, ground);
+    RigidBody body4= RigidBody(world, 0, 0, 568, 32, ground);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -60,6 +61,7 @@ int Game::start() {
         body.draw(window);
         body2.draw(window);
         body3.draw(window);
+        body4.draw(window);
 
         window.draw(fps_text);
         window.display();
