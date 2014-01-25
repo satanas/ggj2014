@@ -32,8 +32,12 @@ int Game::start() {
 
     //std::vector<sf::RenderTexture> groundTexture;
 
-    RigidBody body = RigidBody(world, 0, 568, 128, 32);
-    RigidBody body2 = RigidBody(world, 128, 128, 128, 32);
+    sf::Texture ground;
+    ground.loadFromFile("box.png");
+
+    RigidBody body = RigidBody(world, 0, 568, 128, 32, ground);
+    RigidBody body2 = RigidBody(world, 128, 128, 128, 32, ground);
+    RigidBody body3 = RigidBody(world, 384, 384, 64, 64, ground);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -53,10 +57,9 @@ int Game::start() {
 
         window.clear(sf::Color::Black);
 
-        sf::Sprite GroundSprite = body.getSprite();
-        sf::Sprite GroundSprite2 = body2.getSprite();
-        window.draw(GroundSprite);
-        window.draw(GroundSprite2);
+        body.draw(window);
+        body2.draw(window);
+        body3.draw(window);
 
         window.draw(fps_text);
         window.display();
