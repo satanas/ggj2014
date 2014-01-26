@@ -26,12 +26,12 @@ int Level::run() {
 
     sf::Clock clock;
     sf::Vector2f target_center;
-    world_limits = sf::Vector2f(3000, 1000);
+    world_limits = sf::Vector2f(1376, 480);
     char fps_buff[15];
 
     sf::Text fps_text;
     fps_text.setFont(regular_font);
-    fps_text.setPosition(0, 700);
+    fps_text.setPosition(0, 500);
     fps_text.setCharacterSize(18);
     fps_text.setColor(sf::Color::White);
 
@@ -64,23 +64,23 @@ int Level::run() {
     player_textures.push_back(player_blue_texture);
     player_textures.push_back(player_red_texture);
 
-    StaticPlatform body = StaticPlatform(world, 0, 568, 256, 32, ground_green);
-    StaticPlatform body2 = StaticPlatform(world, 128, 128, 128, 32, ground_green);
-    StaticPlatform body3 = StaticPlatform(world, 416, 416, 64, 32, ground_green);
-    StaticPlatform body4 = StaticPlatform(world, 0, 0, 568, 32, ground_green);
-    StaticPlatform body5 = StaticPlatform(world, 288, 480, 64, 32, ground_green);
-    StaticPlatform body6 = StaticPlatform(world, 568, 480, 64, 32, ground_green);
-    MoveablePlatform body7 = MoveablePlatform(world, 696, 480, 64, 32, ground_textures);
-    StaticPlatform body8 = StaticPlatform(world, 824, 480, 64, 32, ground_green);
-    StaticPlatform body9 = StaticPlatform(world, 1024, 568, 256, 32, ground_green);
+    StaticPlatform body = StaticPlatform(world, 0, 96, 32, 224, ground_green);
+    StaticPlatform body2 = StaticPlatform(world, 0, 320, 224, 128, ground_green);
+    StaticPlatform body3 = StaticPlatform(world, 32, 96, 704, 32, ground_green);
+    StaticPlatform body4 = StaticPlatform(world, 320, 320, 160, 128, ground_green);
+    StaticPlatform body5 = StaticPlatform(world, 576, 320, 800, 128, ground_green);
+    StaticPlatform body6 = StaticPlatform(world, 1024, 160, 96, 160, ground_green);
+    StaticPlatform body8 = StaticPlatform(world, 736, 0, 672, 32, ground_green);
+    StaticPlatform body9 = StaticPlatform(world, 1248, 32, 128, 128, ground_green);
+    StaticPlatform body7 = StaticPlatform(world, 1376, 32, 32, 416, ground_green);
+    StaticPlatform body12 = StaticPlatform(world, 736, 32, 32, 96, ground_green);
 
-    MoveablePlatform body10 = MoveablePlatform(world, 96, 320, 96, 32, ground_textures);
-    //body10.set_movement(MoveablePlatform::HORIZONTAL, MoveablePlatform::LEFT, 96, 288);
-    body10.set_movement(MoveablePlatform::VERTICAL, MoveablePlatform::UP, 224, 416);
+    InvisiblePlatform body11 = InvisiblePlatform(world, 704, 128, 32, 192, ground_textures);
+    MoveablePlatform body10 = MoveablePlatform(world, 928, 160, 64, 32, ground_textures);
+    body10.set_movement(MoveablePlatform::VERTICAL, MoveablePlatform::DOWN, 160, 256);
 
-    InvisiblePlatform body11 = InvisiblePlatform(world, 196, 256, 64, 64, ground_textures);
 
-    Player player(world, 32, 256, player_textures);
+    Player player(world, 64, 288, player_textures);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -121,12 +121,9 @@ int Level::run() {
         world.Step(1.0f/60.f, 8, 3);
 
         if (player.get_current_character() == Player::BLUE) {
-            //body7.activate();
-            //body7.update();
             body10.activate();
             body10.update();
         } else {
-            //body7.deactivate();
             body10.deactivate();
         }
 
@@ -138,17 +135,19 @@ int Level::run() {
 
         sprintf(fps_buff, "FPS: %3.2f", framesPerSecond(clock));
         fps_text.setString(sf::String(fps_buff));
-
         sprintf(fps_buff, "x %i", lives);
         lives_text.setString(sf::String(fps_buff));
 
         window.clear(sf::Color::Black);
-        window.setView(view);
 
         player.update();
         check_boundaries(player);
-        target_center = player.get_center();
-        view.setCenter(target_center.x, target_center.y);
+
+        window.setView(view);
+        if (player.get_status() == Player::ALIVE) {
+            target_center = player.get_center();
+            view.setCenter(target_center.x, target_center.y);
+        }
 
         body.draw(window);
         body2.draw(window);
@@ -161,6 +160,7 @@ int Level::run() {
         body9.draw(window);
         body10.draw(window);
         body11.draw(window);
+        body12.draw(window);
 
         player.draw(window);
 

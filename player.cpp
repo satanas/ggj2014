@@ -22,7 +22,7 @@ Player::Player(b2World& _world, int x, int y, std::vector<sf::Texture>& _texture
     shape.SetAsBox((width / 2) / SCALE, (height / 2) / SCALE);
     b2FixtureDef fixtureDef;
     fixtureDef.density = 0.1f;
-    fixtureDef.friction= 0.7f;
+    fixtureDef.friction= 0.0f;
     fixtureDef.shape = &shape;
     body->CreateFixture(&fixtureDef);
 
@@ -79,8 +79,6 @@ void Player::update() {
         }
     } else if (status == DYING) {
         sf::Time time_since_dead = clock.getElapsedTime();
-        fflush(stdout);
-        printf("Dying... %i\n", time_since_dead.asMilliseconds());
         if ((time_since_dead.asMilliseconds()) > 2000) {
             status = DEAD;
         }
