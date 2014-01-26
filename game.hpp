@@ -6,7 +6,7 @@
 
 class Game {
     public:
-        Game(sf::RenderWindow& _window, b2World& _world, sf::View& _view);
+        Game(sf::RenderWindow& _window, sf::View& _view);
         ~Game();
 
         int start();
@@ -15,7 +15,7 @@ class Game {
         float fps;
         sf::RenderWindow& window;
         sf::View& view;
-        b2World& world;
+        //b2World& world;
 
         float framesPerSecond(sf::Clock& clock);
         void createRigidGround(int x, int y, int width, int height);

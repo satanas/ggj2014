@@ -1,5 +1,6 @@
 #include <vector>
 #include "objects.hpp"
+#include "player.hpp"
 
 extern float SCALE;
 
@@ -51,12 +52,7 @@ MoveablePlatform::MoveablePlatform(b2World& _world, int x, int y, int _width, in
     y = y;
     speed = 2;
     delay = 2000;
-    orientation = HORIZONTAL;
-    direction = LEFT;
-    c1 = x;
-    c2 = (x + width) * 2;
-    m_c1 = float(c1) / SCALE;
-    m_c2 = float(c2) / SCALE;
+    // Define moving settings outside
     texture_index = Player::GREEN;
     float m_x = (x + ((float)width/2))/SCALE;
     float m_y = (y + ((float)height/2))/SCALE;
@@ -87,57 +83,38 @@ MoveablePlatform::MoveablePlatform(b2World& _world, int x, int y, int _width, in
     }
 }
 
+void MoveablePlatform::set_movement(int _orientation, int starting_direction, int from_point1, int to_point2) {
+    orientation = _orientation;
+    direction = starting_direction;
+    c1 = from_point1;
+    c2 = to_point2;
+    m_c1 = float(c1) / SCALE;
+    m_c2 = float(c2) / SCALE;
+}
+
 void MoveablePlatform::draw(sf::RenderWindow& window) {
     std::vector<sf::Sprite>::iterator iterator;
-    for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator) {
-        //printf("%s\n", typeid(*iterator).name());
+    for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator)
         window.draw(*iterator);
-    }
 }
 
 void MoveablePlatform::update_textures() {
     std::vector<sf::Sprite>::iterator iterator;
-    for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator) {
+    for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator)
         iterator->setTexture(textures[texture_index]);
-    }
 }
 
 void MoveablePlatform::render_textures() {
     float x_offset = 0, y_offset = 0;
-    //int maxX = width / SCALE;
-    //int maxY = height / SCALE;
-
-    //sprites.clear();
-    //b2Vec2 m_pos = body->GetPosition();
-
-    //for (int i=0; i<maxX; i++) {
-    //    for (int j=0; j<maxY; j++) {
-    //        sf::Sprite sp;
-    //        sp.setTexture(textures[texture_index]);
-    //        sp.setPosition((i * SCALE) + (m_pos.x * SCALE), (j * SCALE) + (m_pos.y * SCALE));
-    //        sprites.push_back(sp);
-    //    }
-    //}
 
     b2Vec2 m_pos = body->GetPosition();
     std::vector<sf::Sprite>::iterator iterator;
     for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator) {
         sf::Vector2f sprite_pos = iterator->getPosition();
         x_offset = sprite_pos.x - (last_m_pos.x * SCALE);
-        //y_offset = sprite_pos.y - m_pos.y;
-        iterator->setPosition(x_offset + (m_pos.x * SCALE), sprite_pos.y);
-        //printf("m_pos_x: %f, last_m_pos_x: %f, sprite_pos_x: %f x_offset: %f\n", m_pos.x, last_m_pos.x, sprite_pos.x, x_offset);
-        //fflush(stdout);
-
-        //if (orientation == HORIZONTAL) {
-        //    x_offset = (m_pos.x * SCALE) - pos.x;
-        //    iterator->move(x_offset, 0);
-        //} else {
-        //    y_offset = (m_pos.y * SCALE) - pos.y;
-        //    iterator->move(0, y_offset);
-        //}
+        y_offset = sprite_pos.y - (last_m_pos.y * SCALE);
+        iterator->setPosition(x_offset + (m_pos.x * SCALE), y_offset + (m_pos.y * SCALE));
     }
-    //printf("****\n");
 }
 
 void MoveablePlatform::activate() {
@@ -189,6 +166,23 @@ void MoveablePlatform::update() {
             }
         }
 
+    } else if (orientation == VERTICAL) {
+        if (direction == UP) {
+            if (pos.y <= m_c1) {
+                direction = DOWN;
+                vel.y = speed;
+            } else {
+                vel.y = -speed;
+            }
+        } else if (direction == DOWN) {
+            if (pos.y >= m_c2) {
+                direction = UP;
+                vel.y = -speed;
+            } else {
+                vel.y = speed;
+            }
+        }
+
     }
     body->SetLinearVelocity(vel);
     render_textures();
@@ -196,102 +190,62 @@ void MoveablePlatform::update() {
 
 MoveablePlatform::~MoveablePlatform() {}
 
-Player::Player(b2World& _world, int x, int y, std::vector<sf::Texture>& _textures) : world(_world), textures(_textures) {
-    player_width = 32;
-    player_height = 64;
-    remaining_jump_step = 0;
-    texture_index = GREEN;
-    jumping = false;
-    float m_x = (x + ((float)player_width / 2)) / SCALE;
-    float m_y = (y + ((float)player_height / 2)) / SCALE;
+InvisiblePlatform::InvisiblePlatform(b2World& _world, int x, int y, int _width, int _height, std::vector<sf::Texture>& _textures) : world(_world), textures(_textures) {
+    width = _width;
+    height = _height;
+    texture_index = Player::GREEN;
+    float m_x = (x + ((float)width/2))/SCALE;
+    float m_y = (y + ((float)height/2))/SCALE;
+    m_width = ((float)width/2)/SCALE;
+    m_height = ((float)height/2)/SCALE;
 
     b2BodyDef bodyDef;
     bodyDef.position = b2Vec2(m_x, m_y);
-    bodyDef.type = b2_dynamicBody;
+    bodyDef.type = b2_staticBody;
     body = world.CreateBody(&bodyDef);
-    body->SetFixedRotation(true);
 
     b2PolygonShape shape;
-    shape.SetAsBox((player_width / 2) / SCALE, (player_height / 2) / SCALE);
+    shape.SetAsBox(m_width, m_height);
     b2FixtureDef fixtureDef;
-    fixtureDef.density = 0.1f;
-    fixtureDef.friction= 0.7f;
+    fixtureDef.density = 0.0f;
     fixtureDef.shape = &shape;
     body->CreateFixture(&fixtureDef);
 
-    sprite.setTexture(textures[texture_index]);
-    sprite.setOrigin(player_width / 2, player_height / 2);
-}
-
-void Player::draw(sf::RenderWindow& window) {
-    sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
-    sprite.setRotation(body->GetAngle() * 180/b2_pi);
-    //printf("%s\n", typeid(sprite).name());
-    window.draw(sprite);
-}
-
-void Player::move(int direction) {
-    b2Vec2 vel = body->GetLinearVelocity();
-    if (direction == Player::DIRECTION_LEFT) {
-        vel.x = -5;
-        //body->ApplyForce(b2Vec2(0, 5), body->GetWorldCenter(), true);
-    } else if (direction == Player::DIRECTION_RIGHT) {
-        vel.x = 5;
-        //body->ApplyForce(b2Vec2(0, -5), body->GetWorldCenter(), true);
-    } else if (direction == Player::DIRECTION_NONE) {
-        vel.x = 0;
-        //body->SetLinearVelocity(vel);
-    }
-    body->SetLinearVelocity(vel);
-}
-
-void Player::jump() {
-    if (!jumping) {
-        remaining_jump_step = 6;
-        jumping = true;
+    int maxX = width / SCALE;
+    int maxY = height / SCALE;
+    for (int i=0; i<maxX; i++) {
+        for (int j=0; j<maxY; j++) {
+            sf::Sprite sp(textures[texture_index]);
+            sp.setPosition((i * SCALE) + x, (j * SCALE) + y);
+            sprites.push_back(sp);
+        }
     }
 }
 
-void Player::update() {
-    b2Vec2 vel = body->GetLinearVelocity();
-
-    if (remaining_jump_step > 0) {
-        body->ApplyForce(b2Vec2(0, -25), body->GetWorldCenter(), true);
-        remaining_jump_step--;
-    }
-
-    if (vel.y != 0.0) {
-        jumping = true;
-    } else {
-        jumping = false;
-    }
+void InvisiblePlatform::activate() {
+    if (texture_index == Player::RED) return;
+    texture_index = Player::RED;
+    body->SetActive(false);
+    update_textures();
 }
 
-sf::Vector2f Player::get_center() {
-    b2Vec2 m_center = body->GetWorldCenter();
-    sf::Vector2f center;
-    center.x = SCALE * m_center.x;
-    center.y = SCALE * m_center.y;
-    return center;
+void InvisiblePlatform::deactivate() {
+    if (texture_index == Player::GREEN) return;
+    texture_index = Player::GREEN;
+    body->SetActive(true);
+    update_textures();
 }
 
-void Player::set_green() {
-    texture_index = GREEN;
-    sprite.setTexture(textures[texture_index]);
+void InvisiblePlatform::update_textures() {
+    std::vector<sf::Sprite>::iterator iterator;
+    for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator)
+        iterator->setTexture(textures[texture_index]);
 }
 
-void Player::set_blue() {
-    texture_index = BLUE;
-    sprite.setTexture(textures[texture_index]);
+void InvisiblePlatform::draw(sf::RenderWindow& window) {
+    std::vector<sf::Sprite>::iterator iterator;
+    for (iterator = sprites.begin(); iterator != sprites.end(); ++iterator)
+        window.draw(*iterator);
 }
 
-void Player::set_red() {
-    texture_index = RED;
-    sprite.setTexture(textures[texture_index]);
-}
-
-int Player::get_current_character() {
-    return texture_index;
-}
-
-Player::~Player() {}
+InvisiblePlatform::~InvisiblePlatform() {}

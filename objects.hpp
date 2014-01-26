@@ -33,9 +33,7 @@ class MoveablePlatform {
         ~MoveablePlatform();
 
         void draw(sf::RenderWindow& window);
-        void set_orientation(int orientation);
-        void set_direction(int direction);
-        void set_range(int c1, int c2);
+        void set_movement(int orientation, int starting_direction, int from_point1, int to_point2);
         void set_speed(int _speed);
         void set_delay(int delay);
         void activate();
@@ -58,37 +56,26 @@ class MoveablePlatform {
         void render_textures();
 };
 
-class Player {
+class InvisiblePlatform {
     public:
-        static const int DIRECTION_NONE = 0;
-        static const int DIRECTION_LEFT = -1;
-        static const int DIRECTION_RIGHT = 1;
-        static const int GREEN = 0;
-        static const int BLUE = 1;
-        static const int RED = 2;
-
-        //Player(b2World& _world, int x, int y, sf::Texture& _texture);
-        Player(b2World& _world, int x, int y, std::vector<sf::Texture>& _textures);
-        ~Player();
+        InvisiblePlatform(b2World& _world, int x, int y, int _width, int _height, std::vector<sf::Texture>& _textures);
+        ~InvisiblePlatform();
 
         void draw(sf::RenderWindow& window);
-        void move(int direction);
-        void jump();
+        void activate();
+        void deactivate();
         void update();
-        void set_green();
-        void set_blue();
-        void set_red();
-        int get_current_character();
-        sf::Vector2f get_center();
 
     private:
-        int player_width, player_height, remaining_jump_step, texture_index;
-        bool jumping;
+        int x, y, width, height;
+        int texture_index;
+        float m_width, m_height;
         b2World& world;
         b2Body* body;
-        sf::Sprite sprite;
-        //sf::Texture& texture;
         std::vector<sf::Texture>& textures;
+        std::vector<sf::Sprite> sprites;
+
+        void update_textures();
 };
 
 #endif
