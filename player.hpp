@@ -12,28 +12,35 @@ class Player {
         static const int GREEN = 0;
         static const int BLUE = 1;
         static const int RED = 2;
+        static const int ALIVE = 1;
+        static const int DYING = 0;
+        static const int DEAD = -1;
 
-        //Player(b2World& _world, int x, int y, sf::Texture& _texture);
         Player(b2World& _world, int x, int y, std::vector<sf::Texture>& _textures);
         ~Player();
 
         void draw(sf::RenderWindow& window);
         void move(int direction);
         void jump();
+        void stop();
         void update();
         void set_green();
         void set_blue();
         void set_red();
         int get_current_character();
+        int get_status();
+        void die();
         sf::Vector2f get_center();
+        sf::Vector2f get_position();
 
     private:
-        int player_width, player_height, remaining_jump_step, texture_index;
+        int width, height, remaining_jump_step, texture_index;
         bool jumping;
+        int status;
         b2World& world;
         b2Body* body;
         sf::Sprite sprite;
-        //sf::Texture& texture;
+        sf::Clock clock;
         std::vector<sf::Texture>& textures;
 };
 

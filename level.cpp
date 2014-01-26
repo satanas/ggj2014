@@ -7,7 +7,7 @@
 
 float SCALE = 32.0f;
 
-Level::Level(sf::RenderWindow& _window, sf::View& _view, int level) : window(_window), view(_view) {
+Level::Level(sf::RenderWindow& _window, sf::View& _view, int& lives, int level) : window(_window), view(_view), lives(lives) {
     current_level = level;
     frames_count = 0;
     fps = 0.0f;
@@ -26,14 +26,19 @@ int Level::run() {
 
     sf::Clock clock;
     sf::Vector2f target_center;
+    world_limits = sf::Vector2f(3000, 1000);
     char fps_buff[15];
-    int world_limit_x = 3000;
-    int world_limit_y = 2000;
 
     sf::Text fps_text;
     fps_text.setFont(regular_font);
+    fps_text.setPosition(0, 700);
     fps_text.setCharacterSize(18);
     fps_text.setColor(sf::Color::White);
+
+    sf::Text lives_text;
+    lives_text.setFont(regular_font);
+    lives_text.setCharacterSize(18);
+    lives_text.setColor(sf::Color::White);
 
     sf::Texture ground_green;
     ground_green.loadFromFile("box-green.png");
@@ -75,33 +80,38 @@ int Level::run() {
 
     InvisiblePlatform body11 = InvisiblePlatform(world, 196, 256, 64, 64, ground_textures);
 
-    Player player = Player(world, 32, 256, player_textures);
+    Player player(world, 32, 256, player_textures);
 
     while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            if (event.type == sf::Event::KeyPressed) {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-                    player.move(Player::DIRECTION_LEFT);
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-                    player.move(Player::DIRECTION_RIGHT);
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-                    player.jump();
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
-                    player.set_green();
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
-                    player.set_red();
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
-                    player.set_blue();
-            }
-            if (event.type == sf::Event::KeyReleased) {
-                if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                    player.move(Player::DIRECTION_NONE);
+
+        if (player.get_status() == Player::ALIVE) {
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                }
+                if (event.type == sf::Event::KeyPressed) {
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+                        player.move(Player::DIRECTION_LEFT);
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+                        player.move(Player::DIRECTION_RIGHT);
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+                        player.jump();
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
+                        player.set_green();
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+                        player.set_red();
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
+                        player.set_blue();
+                }
+                if (event.type == sf::Event::KeyReleased) {
+                    if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                        player.move(Player::DIRECTION_NONE);
+                    }
                 }
             }
+        } else if (player.get_status() == Player::DEAD) {
+            return PLAYER_DEAD;
         }
 
         // Save last position of moveable platforms
@@ -129,10 +139,14 @@ int Level::run() {
         sprintf(fps_buff, "FPS: %3.2f", framesPerSecond(clock));
         fps_text.setString(sf::String(fps_buff));
 
+        sprintf(fps_buff, "x %i", lives);
+        lives_text.setString(sf::String(fps_buff));
+
         window.clear(sf::Color::Black);
         window.setView(view);
 
         player.update();
+        check_boundaries(player);
         target_center = player.get_center();
         view.setCenter(target_center.x, target_center.y);
 
@@ -151,19 +165,22 @@ int Level::run() {
         player.draw(window);
 
         window.setView(window.getDefaultView());
+        window.draw(lives_text);
         window.draw(fps_text);
         window.display();
     }
     return EXIT_SUCCESS;
-
-
-
 }
 
 void Level::clear() {
 }
 
 void Level::next() {
+    current_level++;
+}
+
+void Level::first() {
+    current_level = 1;
 }
 
 void Level::restart() {
@@ -199,4 +216,9 @@ float Level::framesPerSecond(sf::Clock& clock) {
         frames_count = 0;
     }
     return fps;
+}
+
+void Level::check_boundaries(Player& player) {
+    if ((player.get_position().x > world_limits.x) || (player.get_position().y > world_limits.y))
+        player.die();
 }

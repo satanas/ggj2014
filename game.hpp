@@ -6,18 +6,17 @@
 
 class Game {
     public:
+        static const int QUIT = 0;
+
         Game(sf::RenderWindow& _window, sf::View& _view);
         ~Game();
 
         int start();
     private:
-        int frames_count, width, height;
-        float fps;
+        int lives;
         sf::RenderWindow& window;
         sf::View& view;
-        //b2World& world;
 
-        float framesPerSecond(sf::Clock& clock);
-        void createRigidGround(int x, int y, int width, int height);
+        bool over();
 };
 #endif
