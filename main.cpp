@@ -12,13 +12,16 @@ int main(int, char const**) {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
 
+    sf::View view;
+    view.reset(sf::FloatRect(0, 0, width, height));
+
     sf::RenderWindow window(sf::VideoMode(width, height), "GGJ 2014", sf::Style::Default, settings);
     window.setFramerateLimit(60);
 
     b2Vec2 gravity(0.0f, 15.0f);
     b2World world(gravity);
 
-    Game game(window, world);
+    Game game(window, world, view);
     game.start();
 
     return 0;

@@ -111,9 +111,14 @@ void Player::update() {
     } else {
         jumping = false;
     }
+}
 
-    printf("vel_y: %f, jumping %i\n", vel.y, jumping);
-    fflush(stdout);
+sf::Vector2f Player::get_center() {
+    b2Vec2 m_center = body->GetWorldCenter();
+    sf::Vector2f center;
+    center.x = SCALE * m_center.x;
+    center.y = SCALE * m_center.y;
+    return center;
 }
 
 Player::~Player() {}

@@ -33,6 +33,7 @@ class Player {
         void move(int direction);
         void jump();
         void update();
+        sf::Vector2f get_center();
 
     private:
         int player_width, player_height, remaining_jump_step;

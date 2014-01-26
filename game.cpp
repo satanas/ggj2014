@@ -7,7 +7,7 @@
 
 extern float SCALE;
 
-Game::Game(sf::RenderWindow& _window, b2World& _world) : window(_window), world(_world) {
+Game::Game(sf::RenderWindow& _window, b2World& _world, sf::View& _view) : window(_window), world(_world), view(_view) {
     frames_count = 0;
     fps = 0.0f;
     width = (int)window.getSize().x;
@@ -15,6 +15,7 @@ Game::Game(sf::RenderWindow& _window, b2World& _world) : window(_window), world(
 }
 
 int Game::start() {
+    sf::Vector2f target_center;
     int current_ground_texture = 0;
     char fps_buff[15];
 
@@ -41,6 +42,10 @@ int Game::start() {
     RigidBody body3 = RigidBody(world, 416, 416, 64, 32, ground);
     RigidBody body4 = RigidBody(world, 0, 0, 568, 32, ground);
     RigidBody body5 = RigidBody(world, 288, 480, 64, 32, ground);
+    RigidBody body6 = RigidBody(world, 568, 480, 64, 32, ground);
+    RigidBody body7 = RigidBody(world, 696, 480, 64, 32, ground);
+    RigidBody body8 = RigidBody(world, 824, 480, 64, 32, ground);
+    RigidBody body9 = RigidBody(world, 1024, 568, 256, 32, ground);
     Player player = Player(world, 32, 256, player_texture);
 
     while (window.isOpen()) {
@@ -70,23 +75,27 @@ int Game::start() {
         sprintf(fps_buff, "FPS: %3.2f", framesPerSecond(clock));
         fps_text.setString(sf::String(fps_buff));
 
-        //if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        //    int MouseX = sf::Mouse::getPosition(window).x;
-        //    int MouseY = sf::Mouse::getPosition(window).y;
-        //}
         world.Step(1.0f/60.f, 8, 3);
 
         window.clear(sf::Color::Black);
+        window.setView(view);
+        player.update();
+        target_center = player.get_center();
+        view.setCenter(target_center.x, target_center.y);
 
         body.draw(window);
         body2.draw(window);
         body3.draw(window);
         body4.draw(window);
         body5.draw(window);
+        body6.draw(window);
+        body7.draw(window);
+        body8.draw(window);
+        body9.draw(window);
 
-        player.update();
         player.draw(window);
 
+        window.setView(window.getDefaultView());
         window.draw(fps_text);
         window.display();
     }

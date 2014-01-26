@@ -6,7 +6,7 @@
 
 class Game {
     public:
-        Game(sf::RenderWindow& _window, b2World& _world);
+        Game(sf::RenderWindow& _window, b2World& _world, sf::View& _view);
         ~Game();
 
         int start();
@@ -14,6 +14,7 @@ class Game {
         int frames_count, width, height;
         float fps;
         sf::RenderWindow& window;
+        sf::View& view;
         b2World& world;
 
         float framesPerSecond(sf::Clock& clock);
