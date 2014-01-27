@@ -9,6 +9,7 @@ class Level {
     public:
         static const int COMPLETED = 0x01;
         static const int PLAYER_DEAD = 0x02;
+        static const int CLOSE = 0x03;
         static const int ERROR_LOADING_RESOURCES = -0x01;
 
         Level(sf::RenderWindow& _window, sf::View& _view, int& lives, int level);

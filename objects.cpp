@@ -249,3 +249,36 @@ void InvisiblePlatform::draw(sf::RenderWindow& window) {
 }
 
 InvisiblePlatform::~InvisiblePlatform() {}
+
+
+Door::Door(b2World& _world, int x, int y, sf::Texture& _texture) : world(_world), texture(_texture) {
+    width = 64;
+    height = 64;
+    float m_x = (x + ((float)width/2))/SCALE;
+    float m_y = (y + ((float)height/2))/SCALE;
+    m_width = ((float)width/2)/SCALE;
+    m_height = ((float)height/2)/SCALE;
+
+    b2BodyDef bodyDef;
+    bodyDef.position = b2Vec2(m_x, m_y);
+    bodyDef.type = b2_staticBody;
+    body = world.CreateBody(&bodyDef);
+
+    b2PolygonShape shape;
+    shape.SetAsBox(m_width, m_height);
+    b2FixtureDef fixtureDef;
+    fixtureDef.density = 0.0f;
+    fixtureDef.shape = &shape;
+    fixtureDef.isSensor = true;
+    body->CreateFixture(&fixtureDef);
+
+    sprite.setTexture(texture);
+    sprite.setOrigin(width / 2, height / 2);
+    sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
+}
+
+void Door::draw(sf::RenderWindow& window) {
+    window.draw(sprite);
+}
+
+Door::~Door() {}

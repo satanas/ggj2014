@@ -23,7 +23,8 @@ int Game::start() {
             } else {
                 continue;
             }
-        }
+        } else if (result == Level::CLOSE)
+            return QUIT;
     }
     return QUIT;
 }

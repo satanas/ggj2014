@@ -59,6 +59,9 @@ int Level::run() {
     sf::Texture player_blue_texture;
     player_blue_texture.loadFromFile("player-blue.png");
 
+    sf::Texture door_texture;
+    door_texture.loadFromFile("door.png");
+
     std::vector<sf::Texture> player_textures;
     player_textures.push_back(player_green_texture);
     player_textures.push_back(player_blue_texture);
@@ -79,6 +82,8 @@ int Level::run() {
     MoveablePlatform body10 = MoveablePlatform(world, 928, 160, 64, 32, ground_textures);
     body10.set_movement(MoveablePlatform::VERTICAL, MoveablePlatform::DOWN, 160, 256);
 
+    Door body13 = Door(world, 1280, 256, door_texture);
+
     Player player(world, 64, 288, player_textures);
 
     while (window.isOpen()) {
@@ -88,6 +93,7 @@ int Level::run() {
             while (window.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     window.close();
+                    return CLOSE;
                 }
                 if (event.type == sf::Event::KeyPressed) {
                     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
@@ -160,6 +166,7 @@ int Level::run() {
         body10.draw(window);
         body11.draw(window);
         body12.draw(window);
+        body13.draw(window);
 
         player.draw(window);
 

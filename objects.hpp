@@ -78,4 +78,20 @@ class InvisiblePlatform {
         void update_textures();
 };
 
+class Door{
+    public:
+        Door(b2World& _world, int x, int y, sf::Texture& _texture);
+        ~Door();
+
+        void draw(sf::RenderWindow& window);
+
+    private:
+        int x, y, width, height;
+        float m_width, m_height;
+        b2World& world;
+        b2Body* body;
+        sf::Texture& texture;
+        sf::Sprite sprite;
+};
+
 #endif
