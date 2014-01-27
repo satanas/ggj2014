@@ -38,7 +38,8 @@ Player::~Player() {}
 void Player::draw(sf::RenderWindow& window) {
     sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
     sprite.setRotation(body->GetAngle() * 180/b2_pi);
-    window.draw(sprite);
+    if (status == ALIVE)
+        window.draw(sprite);
     std::vector<BodyParticle>::iterator iterator;
     for (iterator = particles.begin(); iterator != particles.end(); ++iterator) {
         iterator->update();
@@ -92,7 +93,7 @@ void Player::update() {
         if ((time_since_dead.asMilliseconds() > 250) && !particles_wave) {
             sf::Vector2f center = get_center();
             for (int i = 0; i < 8; i++) {
-                BodyParticle p(world, center.x, center.y, (float(360/8) + 15) * i, 50, particle_texture);
+                BodyParticle p(world, center.x, center.y, (float(360/8) + 15) * i, 100, particle_texture);
                 particles.push_back(p);
             }
             particles_wave = true;
@@ -146,7 +147,7 @@ void Player::die() {
     clock.restart();
     sf::Vector2f center = get_center();
     for (int i = 0; i < 8; i++) {
-        BodyParticle p(world, center.x, center.y, float(360/8) * i, 100, particle_texture);
+        BodyParticle p(world, center.x, center.y, float(360/8) * i, 200, particle_texture);
         particles.push_back(p);
     }
     stop();
@@ -156,8 +157,8 @@ void Player::die() {
 
 
 BodyParticle::BodyParticle(b2World& _world, float x, float y, float _angle, int _speed, sf::Texture& _texture) : world(_world), texture(_texture) {
-    width = 16;
-    height = 16;
+    width = 24;
+    height = 24;
     speed = _speed;
     remaining_steps = 6;
     angle = _angle * b2_pi / 180;
