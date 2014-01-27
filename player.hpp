@@ -4,6 +4,24 @@
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
 
+class BodyParticle {
+    public:
+        BodyParticle(b2World& _world, float x, float y, float angle, int _speed, sf::Texture& _texture);
+        ~BodyParticle();
+
+        void draw(sf::RenderWindow& window);
+        void update();
+
+    private:
+        int width, height, remaining_steps, speed;
+        float angle;
+        b2World& world;
+        b2Body* body;
+        b2Vec2 force;
+        sf::Sprite sprite;
+        sf::Texture& texture;
+};
+
 class Player {
     public:
         static const int DIRECTION_NONE = 0;
@@ -35,13 +53,15 @@ class Player {
 
     private:
         int width, height, remaining_jump_step, texture_index;
-        bool jumping;
+        bool jumping, particles_wave;
         int status;
         b2World& world;
         b2Body* body;
         sf::Sprite sprite;
         sf::Clock clock;
         std::vector<sf::Texture>& textures;
+        std::vector<BodyParticle> particles;
+        sf::Texture particle_texture;
 };
 
 #endif

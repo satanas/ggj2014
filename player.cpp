@@ -9,6 +9,7 @@ Player::Player(b2World& _world, int x, int y, std::vector<sf::Texture>& _texture
     remaining_jump_step = 0;
     texture_index = GREEN;
     jumping = false;
+    particles_wave = false;
     float m_x = (x + ((float)width / 2)) / SCALE;
     float m_y = (y + ((float)height / 2)) / SCALE;
 
@@ -28,6 +29,8 @@ Player::Player(b2World& _world, int x, int y, std::vector<sf::Texture>& _texture
 
     sprite.setTexture(textures[texture_index]);
     sprite.setOrigin(width / 2, height / 2);
+
+    particle_texture.loadFromFile("body-particle.png");
 }
 
 Player::~Player() {}
@@ -35,8 +38,12 @@ Player::~Player() {}
 void Player::draw(sf::RenderWindow& window) {
     sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
     sprite.setRotation(body->GetAngle() * 180/b2_pi);
-    //printf("%s\n", typeid(sprite).name());
     window.draw(sprite);
+    std::vector<BodyParticle>::iterator iterator;
+    for (iterator = particles.begin(); iterator != particles.end(); ++iterator) {
+        iterator->update();
+        iterator->draw(window);
+    }
 }
 
 void Player::move(int direction) {
@@ -79,8 +86,16 @@ void Player::update() {
         }
     } else if (status == DYING) {
         sf::Time time_since_dead = clock.getElapsedTime();
-        if ((time_since_dead.asMilliseconds()) > 2000) {
+        if (time_since_dead.asMilliseconds() > 4000) {
             status = DEAD;
+        }
+        if ((time_since_dead.asMilliseconds() > 250) && !particles_wave) {
+            sf::Vector2f center = get_center();
+            for (int i = 0; i < 8; i++) {
+                BodyParticle p(world, center.x, center.y, (float(360/8) + 15) * i, 50, particle_texture);
+                particles.push_back(p);
+            }
+            particles_wave = true;
         }
     }
 }
@@ -127,8 +142,66 @@ int Player::get_status() {
 void Player::die() {
     if (status != ALIVE) return;
 
-    stop();
     status = DYING;
-    body->SetActive(false);
     clock.restart();
+    sf::Vector2f center = get_center();
+    for (int i = 0; i < 8; i++) {
+        BodyParticle p(world, center.x, center.y, float(360/8) * i, 100, particle_texture);
+        particles.push_back(p);
+    }
+    stop();
+    body->SetActive(false);
+}
+
+
+
+BodyParticle::BodyParticle(b2World& _world, float x, float y, float _angle, int _speed, sf::Texture& _texture) : world(_world), texture(_texture) {
+    width = 16;
+    height = 16;
+    speed = _speed;
+    remaining_steps = 6;
+    angle = _angle * b2_pi / 180;
+    float m_x = (x + ((float)width / 2)) / SCALE;
+    float m_y = (y + ((float)height / 2)) / SCALE;
+
+    //b2Vec2 rayDir(sinf(angle), cosf(angle));
+
+    b2BodyDef bodyDef;
+    bodyDef.position = b2Vec2(m_x, m_y);
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.bullet = true;
+    bodyDef.fixedRotation = true;
+    //bodyDef.linearDamping = 10;
+    bodyDef.gravityScale = 0;
+    force = b2Vec2(cos(angle) * _speed, sin(angle) * _speed);
+    body = world.CreateBody(&bodyDef);
+
+    b2CircleShape shape;
+    shape.m_radius = (width / 4) / SCALE;
+    b2FixtureDef fixtureDef;
+    fixtureDef.density = 60;
+    fixtureDef.friction= 0.0f;
+    fixtureDef.filter.categoryBits = 0x0002;
+    fixtureDef.filter.maskBits = 0x0004;
+    fixtureDef.shape = &shape;
+    body->CreateFixture(&fixtureDef);
+    body->ApplyForce(force, body->GetPosition(), true);
+
+    sprite.setTexture(texture);
+    sprite.setOrigin(width / 2, height / 2);
+}
+
+BodyParticle::~BodyParticle() {}
+
+void BodyParticle::draw(sf::RenderWindow& window) {
+    sprite.setPosition(SCALE * body->GetPosition().x, SCALE * body->GetPosition().y);
+    fflush(stdout);
+    window.draw(sprite);
+}
+
+void BodyParticle::update() {
+    if (remaining_steps > 0) {
+        body->ApplyForce(force, body->GetPosition(), true);
+        remaining_steps--;
+    }
 }

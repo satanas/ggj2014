@@ -79,7 +79,6 @@ int Level::run() {
     MoveablePlatform body10 = MoveablePlatform(world, 928, 160, 64, 32, ground_textures);
     body10.set_movement(MoveablePlatform::VERTICAL, MoveablePlatform::DOWN, 160, 256);
 
-
     Player player(world, 64, 288, player_textures);
 
     while (window.isOpen()) {
